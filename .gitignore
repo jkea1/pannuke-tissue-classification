@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+
+# Experiment outputs
+outputs/checkpoints/
+outputs/metrics/
+
+# OS / editor files
+.DS_Store
+.vscode/
