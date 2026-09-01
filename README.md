@@ -7,6 +7,9 @@ Why we chose ResNet-50 for this project:
 - It makes a fair comparison with DenseNet-121 and Swin-T without making the experiment unnecessarily heavy.
 - There are readily available ImageNet-pretrained weights, so we can fine-tune instead of training from scratch.
 
+### Matrics
+Since our dataset is imbalanced, I’d use validation macro-F1 as the main criterion rather than validation accuracy.
+
 ### References
 [panNuke dataset](https://warwick.ac.uk/fac/cross_fac/tia/data/pannuke/)  
 [pathml](https://github.com/Dana-Farber-AIOS/pathml)
