@@ -14,6 +14,12 @@ from src.pannuke_tissue.models import build_resnet50
 from src.pannuke_tissue.train import train_one_epoch
 from src.pannuke_tissue.evaluate import evaluate
 
+EXPERIMENT_NAME = "03_resnet50_augmentation_30ep_lr1e-4_bs32"
+
+BATCH_SIZE = 32
+LEARNING_RATE = 1e-4
+NUM_EPOCHS = 30
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 PANNUKE_DIR = Path.home() / "datasets" / "PanNuke"
@@ -35,15 +41,15 @@ VAL_TYPE_PATH = (
 )
 
 EPOCH_LOG_PATH = (
-    PROJECT_ROOT / "outputs" / "metrics" / "epoch_metrics.csv"
+    PROJECT_ROOT / "outputs" / "metrics" / f"{EXPERIMENT_NAME}_epoch_metrics.csv"
 )
 
 CHECKPOINT_PATH = (
-    PROJECT_ROOT / "outputs" / "checkpoints" / "resnet50_best.pt"
+    PROJECT_ROOT / "outputs" / "checkpoints" / f"{EXPERIMENT_NAME}_resnet50_best.pt"
 )
 
 BATCH_LOG_PATH = (
-    PROJECT_ROOT / "outputs" / "metrics" / "batch_metrics.csv"
+    PROJECT_ROOT / "outputs" / "metrics" / f"{EXPERIMENT_NAME}_batch_metrics.csv"
 )
 
 BATCH_LOG_PATH.parent.mkdir(
@@ -83,34 +89,44 @@ with open(EPOCH_LOG_PATH, "w", newline="") as f:
         "best_checkpoint",
     ])
 
-transform = transforms.Compose([
+train_transform = transforms.Compose([
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomVerticalFlip(),
+    transforms.RandomRotation(90),
     transforms.Normalize(
         mean=[0.485, 0.456, 0.406],
         std=[0.229, 0.224, 0.225],
-    )
+    ),
+])
+
+val_transform = transforms.Compose([
+    transforms.Normalize(
+        mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225],
+    ),
 ])
 
 train_dataset = PanNukeTissueDataset(
     TRAIN_IMAGE_PATH,
     TRAIN_TYPE_PATH,
-    transform=transform,
+    transform=train_transform,
 )
 
 val_dataset = PanNukeTissueDataset(
     VAL_IMAGE_PATH,
     VAL_TYPE_PATH,
-    transform=transform,
+    transform=val_transform,
 )
 
 train_loader = DataLoader(
     train_dataset,
-    batch_size = 32,
+    batch_size=BATCH_SIZE,
     shuffle=True,
 )
 
 val_loader = DataLoader(
     val_dataset,
-    batch_size=32,
+    batch_size=BATCH_SIZE,
     shuffle=False
 )
 
@@ -124,10 +140,10 @@ criterion = torch.nn.CrossEntropyLoss()
 
 optimizer = torch.optim.Adam(
     model.parameters(),
-    lr=1e-4,
+    lr=LEARNING_RATE,
 )
 
-num_epochs = 5
+num_epochs = NUM_EPOCHS
 best_val_macro_f1 = -1.0
 best_epoch = -1
 

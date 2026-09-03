@@ -38,7 +38,8 @@ def train_one_epoch(
         loss.backward()
         optimizer.step()
 
-        running_loss += loss.item()
+        batch_size = images.size(0)
+        running_loss += loss.item() * batch_size
 
         progress_bar.set_postfix(
             batch_loss=f"{loss.item():.4f}"
@@ -58,6 +59,6 @@ def train_one_epoch(
                     loss.item()
                 ])
 
-    average_loss = running_loss / len(train_loader)
+    average_loss = running_loss / len(train_loader.dataset)
 
     return average_loss

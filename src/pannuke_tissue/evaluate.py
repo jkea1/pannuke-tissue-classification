@@ -22,7 +22,8 @@ def evaluate(
             outputs = model(images)
             loss = criterion(outputs, labels)
 
-            running_loss += loss.item()
+            batch_size = images.size(0)
+            running_loss += loss.item() * batch_size
 
             predictions = outputs.argmax(dim=1) # the class ID with the highest logit
 
@@ -34,7 +35,7 @@ def evaluate(
                 labels.cpu().tolist()
             )
 
-        average_loss = running_loss / len(val_loader)
+        average_loss = running_loss / len(val_loader.dataset)
 
         accuracy = accuracy_score(
             all_labels,
