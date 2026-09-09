@@ -48,10 +48,8 @@ The selected Swin-T model achieved a final test Macro-F1 of 0.8901 and an accura
 
 ### Confusion Matrix Analysis
 
-<p align="center">
-  <img src="outputs/figures/swin_t_final_test_confusion_matrix.png" width="47% />
-  <img src="outputs/figures/swin_t_final_test_confusion_matrix_normalized.png" width="47% />
-</p>
+<img src="outputs/figures/swin_t_final_test_confusion_matrix.png" />
+<img src="outputs/figures/swin_t_final_test_confusion_matrix_normalized.png" />
 
 </br>
 
