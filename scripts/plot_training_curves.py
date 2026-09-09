@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 
-EXPERIMENT_NAME = "03_resnet50_augmentation_30ep_lr1e-4_bs32"
+EXPERIMENT_NAME = "09_vit_b16_augmentation_50ep_lr5e-5_bs32_seed42"
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 

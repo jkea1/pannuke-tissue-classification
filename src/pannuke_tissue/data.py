@@ -26,7 +26,7 @@ TISSUE_CLASSES = [
     "Uterus",
 ]
 
-Tissue_To_IDX = {
+TISSUE_TO_IDX = {
     tissue: idx
     for idx, tissue in enumerate(TISSUE_CLASSES)
 }
@@ -47,7 +47,7 @@ class PanNukeTissueDataset(Dataset):
         image = self.images[idx] # float64 (256, 256, 3), 0~255
         tissue = self.types[idx]
         
-        label = Tissue_To_IDX[tissue]
+        label = TISSUE_TO_IDX[tissue]
 
         image = image.astype(np.float32) / 255.0  # -> float32 (256, 256, 3) + HWC + scaling 0~1
         image = np.transpose(image, (2, 0, 1)) # -> float32 (3, 256, 256) CHW

@@ -11,19 +11,18 @@ from pathlib import Path
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
-from src.pannuke_tissue.data import PanNukeTissueDataset, TISSUE_CLASSES, TISSUE_TO_IDX
-from src.pannuke_tissue.models import build_resnet50
+from src.pannuke_tissue.data import PanNukeTissueDataset
+from src.pannuke_tissue.models import build_densenet121
 from src.pannuke_tissue.train import train_one_epoch
 from src.pannuke_tissue.evaluate import evaluate
 
-EXPERIMENT_NAME = "06_resnet50_classweighted_50ep_lr5e-5_bs32_seed42"
+EXPERIMENT_NAME = "07_densenet121_augmentation_50ep_lr5e-5_bs32_seed42"
 
 SEED = 42
 NUM_WORKERS = 0
 NUM_EPOCHS = 50
 BATCH_SIZE = 32
 LEARNING_RATE = 5e-5
-# WEIGHT_DECAY = 1e-4    
 
 random.seed(SEED)
 np.random.seed(SEED)
@@ -66,10 +65,6 @@ CHECKPOINT_PATH = (
 
 BATCH_LOG_PATH = (
     PROJECT_ROOT / "outputs" / "metrics" / f"{EXPERIMENT_NAME}_batch_metrics.csv"
-)
-
-PER_CLASS_METRICS_PATH = (
-    PROJECT_ROOT / "outputs" / "metrics" / f"{EXPERIMENT_NAME}_per_class_metrics.csv"
 )
 
 BATCH_LOG_PATH.parent.mkdir(
@@ -156,49 +151,13 @@ device = torch.device(
     "cuda" if torch.cuda.is_available() else "cpu"
 )
 
-model = build_resnet50().to(device)
+model = build_densenet121().to(device)
 
-# class weighting for imbalanced dataset
-train_labels = [
-    TISSUE_TO_IDX[tissue]
-    for tissue in train_dataset.types
-]
-
-class_counts = np.bincount(
-    train_labels,
-    minlength=len(TISSUE_CLASSES)
-)
-
-class_weights = (
-    len(train_labels)
-    / (len(TISSUE_CLASSES) * class_counts)
-)
-
-class_weights = torch.tensor(
-    class_weights,
-    dtype=torch.float32,
-    device=device,
-)
-
-for class_name, count, weight in zip(
-    TISSUE_CLASSES,
-    class_counts,
-    class_weights.cpu().numpy()
-):
-    print(
-        f"{class_name:15s} "
-        f"count={count:4d} "
-        f"weight={weight:.4f}"
-    )
-
-criterion = torch.nn.CrossEntropyLoss(
-    weight=class_weights
-)
+criterion = torch.nn.CrossEntropyLoss()
 
 optimizer = torch.optim.Adam(
     model.parameters(),
     lr=LEARNING_RATE,
-    # weight_decay=WEIGHT_DECAY,
 )
 
 num_epochs = NUM_EPOCHS
@@ -227,7 +186,7 @@ for epoch in overall_bar:
         log_interval=10,
     )
 
-    val_loss, val_accuracy, val_macro_f1, per_class_metrics = evaluate(
+    val_loss, val_accuracy, val_macro_f1, _ = evaluate(
         model,
         val_loader,
         criterion,
@@ -251,28 +210,6 @@ for epoch in overall_bar:
             model.state_dict(),
             CHECKPOINT_PATH,
         )
-
-        with open(PER_CLASS_METRICS_PATH, "w", newline="") as f:
-            writer = csv.writer(f)
-
-            writer.writerow([
-                "class_name",
-                "precision",
-                "recall",
-                "f1_score",
-                "support",
-            ])
-
-            for class_name in TISSUE_CLASSES:
-                metrics = per_class_metrics[class_name]
-
-                writer.writerow([
-                    class_name,
-                    metrics["precision"],
-                    metrics["recall"],
-                    metrics["f1"],
-                    metrics["support"],
-                ])
 
     overall_bar.set_postfix_str(
         f"train_loss={train_loss:.4f} | "

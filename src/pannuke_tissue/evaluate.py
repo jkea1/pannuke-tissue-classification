@@ -1,11 +1,18 @@
 import torch
-from sklearn.metrics import accuracy_score, f1_score
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    precision_recall_fscore_support
+)
+
+from src.pannuke_tissue.data import TISSUE_CLASSES
 
 def evaluate(
     model, 
     val_loader,
     criterion,
     device,
+    return_predictions=False,
 ) : 
     model.eval()
 
@@ -50,4 +57,24 @@ def evaluate(
             average="macro",
         )
 
-    return average_loss, accuracy, macro_f1
+        precision, recall, f1, support = precision_recall_fscore_support(
+            all_labels,
+            all_predictions,
+            labels=list(range(len(TISSUE_CLASSES))),
+            zero_division=0,
+        )
+
+        per_class_metrics = {}
+
+        for i, class_name in enumerate(TISSUE_CLASSES):
+            per_class_metrics[class_name] = {
+                "precision": precision[i],
+                "recall": recall[i],
+                "f1": f1[i],
+                "support": support[i],
+            }
+
+    if return_predictions:
+        return average_loss, accuracy, macro_f1, per_class_metrics, all_labels, all_predictions
+
+    return average_loss, accuracy, macro_f1, per_class_metrics
