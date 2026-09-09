@@ -62,7 +62,7 @@ The normalized confusion matrix revealed several notable misclassification patte
 
 </br>
 
-#### Uterus–Cervix Misclassification Analysis
+### Uterus–Cervix Misclassification Analysis
 
 The normalized confusion matrix showed that **22% of Uterus samples were misclassified as Cervix**, which was the most prominent off-diagonal misclassification observed in the test set.
 
