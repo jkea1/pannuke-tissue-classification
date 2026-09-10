@@ -3,6 +3,8 @@
 **PanNuke**
 - **PanNuke** is a histopathology dataset consisting of H&E-stained tissue images from multiple tissue types.
 
+<img src="outputs/figures/tissue_samples.png" />
+
 - 19 tissue classes
   - Adrenal gland, Bile duct, Bladder, Breast, Cervix, Colon, Esophagus, Head and Neck, Kidney, Liver, Lung, Ovarian, Pancreatic, Prostate, Skin, Stomach, Testis, Thyroid, and Uterus.
 - Image size : 256×256 pixels
